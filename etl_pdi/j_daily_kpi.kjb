@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job>
+  <name>j_daily_kpi</name>
+  <description>Job diario de carga de KPIs</description>
+  <extended_description>Ejecuta t_load_kpi.ktr, verifica y registra log.</extended_description>
+  <job_version>1</job_version>
+  <job_status>0</job_status>
+  <directory>&#x2f;</directory>
+  <parameters/>
+  <log>
+    <trans-log-table>
+      <connection/>
+      <schema/>
+      <table>log_trans</table>
+    </trans-log-table>
+    <job-log-table>
+      <connection/>
+      <schema/>
+      <table>log_job</table>
+    </job-log-table>
+  </log>
+  <entry>
+    <name>t_load_kpi</name>
+    <type>TRANS</type>
+    <description>Transformación de carga</description>
+    <transname>t_load_kpi</transname>
+    <filename>${Internal.Job.Filename.Directory}/t_load_kpi.ktr</filename>
+    <run_configuration/>
+  </entry>
+</job>

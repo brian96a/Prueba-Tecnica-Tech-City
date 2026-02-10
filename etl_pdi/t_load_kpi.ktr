@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>t_load_kpi</name>
+    <description>Carga KPI desde CSV a SQLite</description>
+    <extended_description>Lee salida/kpi_por_endpoint_dia.csv, filtra y carga en stg y fct.</extended_description>
+    <trans_version>1</trans_version>
+    <trans_type>Normal</trans_type>
+    <directory>&#x2f;</directory>
+    <parameters/>
+    <log/>
+    <maxdate>0</maxdate>
+    <size_rowset>10000</size_rowset>
+    <sleep_time_empty>50</sleep_time_empty>
+    <sleep_time_full>50</sleep_time_full>
+    <unique_connections/>
+    <feedback_shown>Y</feedback_shown>
+    <feedback_size>50000</feedback_size>
+    <using_thread_priorities>Y</using_thread_priorities>
+    <shared_objects_file/>
+    <capture_step_performance>N</capture_step_performance>
+    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
+    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <dependencies/>
+    <partitionschemas/>
+    <slaveservers/>
+    <clusterschemas/>
+    <remotesteps/>
+    <GUI>
+      <xloc>192</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </info>
+  <notepads/>
+  <connection>
+    <name>SQLite-kpi</name>
+    <server/>
+    <type>SQLITE</type>
+    <access>Native</access>
+    <database>${Internal.Transformation.Filename.Directory}/etl_pdi/kpi.db</database>
+    <port/>
+    <username/>
+    <password/>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+  </connection>
+  <step>
+    <name>CSV file input</name>
+    <type>CSVInput</type>
+    <description>Lee kpi_por_endpoint_dia.csv</description>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename>${Internal.Transformation.Filename.Directory}/../salida/kpi_por_endpoint_dia.csv</filename>
+    <file_type>CSV</file_type>
+    <delimiter>,</delimiter>
+    <enclosure>"</enclosure>
+    <header>Y</header>
+    <nr_headerlines>1</nr_headerlines>
+    <footer>N</footer>
+    <nr_footerlines>0</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <layout_paged>N</layout_paged>
+    <noempty>N</noempty>
+    <include_filename>N</include_filename>
+    <include_row_number>N</include_row_number>
+    <format>DOS</format>
+    <encoding>UTF-8</encoding>
+    <field>
+      <name>date_utc</name>
+      <type>Date</type>
+      <format>yyyy-MM-dd</format>
+    </field>
+    <field>
+      <name>endpoint_base</name>
+      <type>String</type>
+    </field>
+    <field>
+      <name>requests_total</name>
+      <type>Integer</type>
+    </field>
+    <field>
+      <name>success_2xx</name>
+      <type>Integer</type>
+    </field>
+    <field>
+      <name>client_4xx</name>
+      <type>Integer</type>
+    </field>
+    <field>
+      <name>server_5xx</name>
+      <type>Integer</type>
+    </field>
+    <field>
+      <name>parse_errors</name>
+      <type>Integer</type>
+    </field>
+    <field>
+      <name>avg_elapsed_ms</name>
+      <type>Number</type>
+    </field>
+    <field>
+      <name>p90_elapsed_ms</name>
+      <type>Number</type>
+    </field>
+  </step>
+  <step>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description>Descarta requests_total&lt;=0 o p90&lt;avg (sanidad)</description>
+    <distribute>N</distribute>
+    <copies>1</copies>
+  </step>
+  <step>
+    <name>Table output stg</name>
+    <type>TableOutput</type>
+    <connection>SQLite-kpi</connection>
+    <schema/>
+    <table>stg_kpi_endpoint_dia</table>
+    <commit>1000</commit>
+    <truncate>N</truncate>
+  </step>
+  <step>
+    <name>Table output fct</name>
+    <type>TableOutput</type>
+    <connection>SQLite-kpi</connection>
+    <schema/>
+    <table>fct_kpi_endpoint_dia</table>
+    <commit>1000</commit>
+    <truncate>Y</truncate>
+  </step>
+  <hop>
+    <from>CSV file input</from>
+    <to>Filter rows</to>
+    <enabled>Y</enabled>
+  </hop>
+  <hop>
+    <from>Filter rows</from>
+    <to>Table output stg</to>
+    <enabled>Y</enabled>
+  </hop>
+  <hop>
+    <from>Filter rows</from>
+    <to>Table output fct</to>
+    <enabled>Y</enabled>
+  </hop>
+</transformation>
