@@ -1,0 +1,10 @@
+__pycache__/
+salida/
+*.py[cod]
+*.pyo
+.Python
+*.db
+venv/
+.venv/
+.env
+*.log
